@@ -1,24 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-
-type WsInstance = {
-  send(data: string): void;
-  close(): void;
-  on(event: "open", listener: () => void): void;
-  on(event: "message", listener: (data: unknown, isBinary: boolean) => void): void;
-  on(event: "error", listener: (err: Error) => void): void;
-  on(event: "close", listener: () => void): void;
-};
-type WsCtor = new (url: string, options?: { headers?: Record<string, string> }) => WsInstance;
-
-// "ws" is loaded lazily, only when TTS is actually called. A top-level
-// createRequire(...)("ws") is invisible to the bundler, so Vercel never ships
-// the package -> the module throws on import -> EVERY page returns HTTP 500.
-let wsCtorPromise: Promise<WsCtor> | undefined;
-function loadWS(): Promise<WsCtor> {
-  // @ts-expect-error "ws" ships no type declarations here
-  wsCtorPromise ??= import("ws").then((m) => ((m as { default?: unknown }).default ?? m) as WsCtor);
-  return wsCtorPromise;
-}
+import WebSocket from "ws";
 
 const TRUSTED_CLIENT_TOKEN = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
 const WSS_URL =
@@ -86,12 +67,11 @@ function asBuffer(data: unknown): Buffer {
   return Buffer.from(String(data));
 }
 
-async function synthesizeOnce(
+function synthesizeOnce(
   text: string,
   voice: string,
   skewSec: number,
 ): Promise<Buffer> {
-  const WS = await loadWS();
   const requestId = randomUUID().replaceAll("-", "");
   const url =
     `${WSS_URL}?TrustedClientToken=${TRUSTED_CLIENT_TOKEN}` +
@@ -102,7 +82,7 @@ async function synthesizeOnce(
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     let settled = false;
-    const ws = new WS(url, {
+    const ws = new WebSocket(url, {
       headers: {
         Pragma: "no-cache",
         "Cache-Control": "no-cache",
@@ -128,7 +108,7 @@ async function synthesizeOnce(
     const timer = setTimeout(() => {
       if (chunks.length) finish();
       else finish(new Error("TTS vaqt tugadi"));
-    }, 18000);
+    }, 12000);
 
     ws.on("open", () => {
       const ts = new Date().toUTCString();
@@ -192,7 +172,7 @@ export async function synthesizeUtterance(
   const hit = cache.get(key);
   if (hit) return hit;
 
-  const skews = [0, 300, -300, 600, -600];
+  const skews = [0, 300, -300];
   let lastErr: unknown;
   for (const skew of skews) {
     try {
