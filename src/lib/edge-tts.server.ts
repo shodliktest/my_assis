@@ -1,21 +1,24 @@
 import { createHash, randomUUID } from "node:crypto";
-import { createRequire } from "node:module";
 
-const require = createRequire(import.meta.url);
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const WS = require("ws") as {
-  new (
-    url: string,
-    options?: { headers?: Record<string, string> },
-  ): {
-    send(data: string): void;
-    close(): void;
-    on(event: "open", listener: () => void): void;
-    on(event: "message", listener: (data: unknown, isBinary: boolean) => void): void;
-    on(event: "error", listener: (err: Error) => void): void;
-    on(event: "close", listener: () => void): void;
-  };
+type WsInstance = {
+  send(data: string): void;
+  close(): void;
+  on(event: "open", listener: () => void): void;
+  on(event: "message", listener: (data: unknown, isBinary: boolean) => void): void;
+  on(event: "error", listener: (err: Error) => void): void;
+  on(event: "close", listener: () => void): void;
 };
+type WsCtor = new (url: string, options?: { headers?: Record<string, string> }) => WsInstance;
+
+// "ws" is loaded lazily, only when TTS is actually called. A top-level
+// createRequire(...)("ws") is invisible to the bundler, so Vercel never ships
+// the package -> the module throws on import -> EVERY page returns HTTP 500.
+let wsCtorPromise: Promise<WsCtor> | undefined;
+function loadWS(): Promise<WsCtor> {
+  // @ts-expect-error "ws" ships no type declarations here
+  wsCtorPromise ??= import("ws").then((m) => ((m as { default?: unknown }).default ?? m) as WsCtor);
+  return wsCtorPromise;
+}
 
 const TRUSTED_CLIENT_TOKEN = "6A5AA1D4EAFF4E9FB37E23D68491D6F4";
 const WSS_URL =
@@ -83,11 +86,12 @@ function asBuffer(data: unknown): Buffer {
   return Buffer.from(String(data));
 }
 
-function synthesizeOnce(
+async function synthesizeOnce(
   text: string,
   voice: string,
   skewSec: number,
 ): Promise<Buffer> {
+  const WS = await loadWS();
   const requestId = randomUUID().replaceAll("-", "");
   const url =
     `${WSS_URL}?TrustedClientToken=${TRUSTED_CLIENT_TOKEN}` +
