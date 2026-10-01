@@ -1,0 +1,11 @@
+node_modules
+.git
+attachments
+artifacts
+screenshots
+.grok/skills
+.grok/references
+.grok/preview.log
+.grok/preview.pid
+AGENTS.md
+*.zip
