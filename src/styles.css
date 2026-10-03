@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-hand: "Caveat", "Segoe Script", cursive;
+
+  --color-bg: #efe8d8;
+  --color-surface: #f7f1e4;
+  --color-fg: #1c1917;
+  --color-muted: #6b645b;
+  --color-primary: #0f6b63;
+  --color-primary-foreground: #f4f7f6;
+  --color-ink: #17233a;
+  --color-ink-foreground: #f3eee4;
+  --color-border: #ddd4c4;
+  --color-paper: #fbf7ee;
+  --color-rule: #e6dcc8;
+  --color-margin: #d7a3a0;
+  --color-danger: #b42318;
+  --color-highlight: #f5e6a6;
+  --color-ball: #141414;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.125rem;
+  --radius-xl: 1.5rem;
+}
+
+:root {
+  --shadow-border:
+    0px 0px 0px 1px rgba(28, 25, 23, 0.06),
+    0px 1px 2px -1px rgba(28, 25, 23, 0.06),
+    0px 2px 4px 0px rgba(28, 25, 23, 0.04);
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --motion-quick: 150ms;
+  --motion-fast: 250ms;
+  --motion-slow: 400ms;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100%;
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+.notebook-page {
+  background-color: var(--color-paper);
+  background-image:
+    linear-gradient(var(--color-rule) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--color-rule) 70%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: 56px 12px;
+}
+
+.notebook-gutter {
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--color-paper) 88%, #e8dcc4) 0%,
+    transparent 100%
+  );
+}
+
+.board-item {
+  animation: board-in var(--motion-slow) var(--ease-smooth-out) both;
+  transform-origin: left center;
+}
+
+.tutor-char {
+  position: absolute;
+  width: 56px;
+  height: 72px;
+  z-index: 30;
+  pointer-events: none;
+  transition:
+    left 680ms var(--ease-smooth-out),
+    top 680ms var(--ease-smooth-out);
+}
+
+.tutor-ball {
+  width: 56px;
+  height: 56px;
+  animation: tutor-float 2.8s ease-in-out infinite;
+}
+
+.tutor-ball.is-think {
+  animation: tutor-think 0.72s ease-in-out infinite;
+}
+
+.tutor-ball.is-point {
+  animation: tutor-point 1.6s ease-in-out infinite;
+}
+
+.chat-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in oklab, var(--color-ink-foreground) 22%, transparent) transparent;
+}
+
+.chat-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--color-ink-foreground) 22%, transparent);
+  border-radius: 99px;
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--color-ink-foreground) 18%, transparent) 0%,
+    color-mix(in oklab, var(--color-ink-foreground) 42%, transparent) 50%,
+    color-mix(in oklab, var(--color-ink-foreground) 18%, transparent) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes board-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes tutor-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes tutor-think {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.05);
+  }
+}
+
+@keyframes tutor-point {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  40% {
+    transform: translateY(-4px) rotate(-8deg);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .board-item,
+  .tutor-ball,
+  .shimmer {
+    animation: none !important;
+  }
+
+  .tutor-char {
+    transition: none;
+  }
+}
