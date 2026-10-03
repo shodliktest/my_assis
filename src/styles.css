@@ -1,0 +1,339 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-hand: "Caveat", "Segoe Script", cursive;
+
+  --color-bg: #efe8d8;
+  --color-surface: #f7f1e4;
+  --color-fg: #1c1917;
+  --color-muted: #6b645b;
+  --color-primary: #0f6b63;
+  --color-primary-foreground: #f4f7f6;
+  --color-ink: #17233a;
+  --color-ink-foreground: #f3eee4;
+  --color-border: #ddd4c4;
+  --color-paper: #fbf7ee;
+  --color-rule: #e6dcc8;
+  --color-margin: #d7a3a0;
+  --color-danger: #b42318;
+  --color-highlight: #f5e6a6;
+  --color-tip: #f59e0b;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.125rem;
+  --radius-xl: 1.5rem;
+}
+
+:root {
+  --shadow-border:
+    0px 0px 0px 1px rgba(28, 25, 23, 0.06),
+    0px 1px 2px -1px rgba(28, 25, 23, 0.06),
+    0px 2px 4px 0px rgba(28, 25, 23, 0.04);
+  --ease-smooth-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --motion-quick: 150ms;
+  --motion-fast: 250ms;
+  --motion-slow: 400ms;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100%;
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+  }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+}
+
+.notebook-page {
+  background-color: var(--color-paper);
+}
+
+.notebook-inner {
+  background-color: var(--color-paper);
+  background-image:
+    linear-gradient(var(--color-rule) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--color-rule) 70%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: 48px 10px;
+}
+
+.notebook-gutter {
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--color-paper) 88%, #e8dcc4) 0%,
+    transparent 100%
+  );
+}
+
+.notebook-scroll {
+  background: var(--color-paper);
+  touch-action: pan-x pan-y;
+}
+
+.zoom-dock {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--color-surface) 92%, white);
+  box-shadow: var(--shadow-border);
+}
+
+.zoom-dock button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  color: var(--color-fg);
+}
+
+.zoom-dock button:hover {
+  background: color-mix(in oklab, var(--color-fg) 6%, transparent);
+}
+
+.zoom-dock svg {
+  width: 16px;
+  height: 16px;
+}
+
+.zoom-dock span {
+  min-width: 3.2rem;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.tutor-pencil {
+  position: absolute;
+  width: 78px;
+  height: 172px;
+  z-index: 30;
+  transform: rotate(-18deg);
+  transform-origin: 39px 158px;
+  transition:
+    left 280ms var(--ease-smooth-out),
+    top 280ms var(--ease-smooth-out),
+    transform 280ms var(--ease-smooth-out);
+  animation: tutor-float 2.8s ease-in-out infinite;
+}
+
+.tutor-pencil.is-write {
+  transform: rotate(-28deg);
+  animation: none;
+}
+
+.tutor-pencil.is-think {
+  animation: tutor-think 0.72s ease-in-out infinite;
+}
+
+.tutor-pencil-hit {
+  position: relative;
+  display: block;
+  width: 78px;
+  height: 172px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.tutor-pencil-svg {
+  width: 78px;
+  height: 172px;
+  overflow: visible;
+}
+
+.draw-orb {
+  position: absolute;
+  left: 32px;
+  bottom: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--color-tip);
+  box-shadow:
+    0 0 0 3px color-mix(in oklab, var(--color-tip) 35%, transparent),
+    0 0 16px color-mix(in oklab, var(--color-tip) 70%, transparent);
+  animation: orb-pulse 1.1s ease-in-out infinite;
+}
+
+.pencil-mouth-speak {
+  transform-origin: 47px 106px;
+  animation: mouth-talk 0.28s ease-in-out infinite;
+}
+
+.player-wrap {
+  position: relative;
+  z-index: 20;
+  padding: 0 10px 10px;
+}
+
+.caption-bubble {
+  margin: 0 auto 8px;
+  max-width: 42rem;
+  border-radius: 16px;
+  background: var(--color-ink);
+  color: var(--color-ink-foreground);
+  padding: 12px 16px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+  box-shadow: var(--shadow-border);
+}
+
+.player-card {
+  margin: 0 auto;
+  max-width: 42rem;
+  border-radius: 24px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-border);
+}
+
+.sheet-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: color-mix(in oklab, var(--color-ink) 38%, transparent);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.sheet-panel {
+  width: min(100%, 32rem);
+  max-height: 78dvh;
+  overflow: auto;
+  border-radius: 24px 24px 0 0;
+  background: var(--color-surface);
+}
+
+@keyframes board-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tutor-float {
+  0%,
+  100% {
+    transform: rotate(-18deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-16deg) translateY(-7px);
+  }
+}
+
+@keyframes tutor-think {
+  0%,
+  100% {
+    transform: rotate(-12deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-22deg) translateY(-6px);
+  }
+}
+
+@keyframes orb-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.18);
+    opacity: 0.85;
+  }
+}
+
+@keyframes mouth-talk {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.45);
+  }
+}
+
+.tutor-pencil.is-speak:not(.is-write) {
+  animation: none;
+}
+
+.tutor-pencil:not(.is-speak) .pencil-mouth-speak {
+  animation: none;
+}
+
+.mode-toggle {
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-border);
+}
+
+.mode-toggle button {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.mode-toggle button.is-on {
+  background: var(--color-ink);
+  color: var(--color-ink-foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tutor-pencil,
+  .draw-orb,
+  .pencil-mouth-speak {
+    animation: none !important;
+  }
+
+  .tutor-pencil {
+    transition: none;
+  }
+}
